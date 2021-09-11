@@ -12,6 +12,7 @@ export class UsersService {
 
     createUser(dto: CreateUserDto): Promise<User> {
         const user = this.usersRepository.create(dto);
+        user.createdAt = new Date();
         return this.usersRepository.save(user);
     }
 
