@@ -1,15 +1,16 @@
-import {Body, Controller, Get, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, UsePipes} from '@nestjs/common';
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UsersService} from "./users.service";
-
+import {UpdateUserDto} from "./dto/update-user.dto";
+import { UserValidationPipe } from 'src/pipes/user-validation.pipe';
 
 @Controller('users')
 export class UsersController {
     constructor(private usersServices: UsersService) {}
 
-    @Post()
+    @UsePipes(UserValidationPipe)
+    @Post('/create')
     create(@Body() userDto: CreateUserDto) {
-        console.log("Success")
         return this.usersServices.createUser(userDto);
     }
 
@@ -17,4 +18,26 @@ export class UsersController {
     getAll() {
         return this.usersServices.getAllUsers();
     }
+
+    @Get(':id')
+    getOneById(@Param('id') userId: number) {
+        return this.usersServices.getUserById(userId);
+    }
+
+    @Get('name/:name')
+    getByName(@Param('name') userName: string) {
+        return this.usersServices.getUsersByName(userName);
+    }
+
+    @UsePipes(UserValidationPipe)
+    @Put(':id/update')
+    update(@Param() userId: number, @Body() updateDto: UpdateUserDto) {
+        return this.usersServices.updateUser(userId, updateDto);
+    }
+
+    @Delete(':id/delete')
+    softDelete(@Param() userId: number) {
+        return this.usersServices.softDeleteUser(userId)
+    }
+
 }
