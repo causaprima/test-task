@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, UsePipes} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes} from '@nestjs/common';
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UsersService} from "./users.service";
 import {UpdateUserDto} from "./dto/update-user.dto";
@@ -9,7 +9,7 @@ export class UsersController {
     constructor(private usersServices: UsersService) {}
 
     @UsePipes(UserValidationPipe)
-    @Post('/create')
+    @Post()
     create(@Body() userDto: CreateUserDto) {
         return this.usersServices.createUser(userDto);
     }
@@ -19,23 +19,23 @@ export class UsersController {
         return this.usersServices.getAllUsers();
     }
 
+    @Get('/filter')
+    getByName(@Query('name') userName: string) {
+        return this.usersServices.getUsersByName(userName);
+    }
+
     @Get(':id')
     getOneById(@Param('id') userId: number) {
         return this.usersServices.getUserById(userId);
     }
 
-    @Get('name/:name')
-    getByName(@Param('name') userName: string) {
-        return this.usersServices.getUsersByName(userName);
-    }
-
     @UsePipes(UserValidationPipe)
-    @Put(':id/update')
-    update(@Param() userId: number, @Body() updateDto: UpdateUserDto) {
-        return this.usersServices.updateUser(userId, updateDto);
+    @Put()
+    update(@Body() updateDto: UpdateUserDto) {
+        return this.usersServices.updateUser(updateDto);
     }
 
-    @Delete(':id/delete')
+    @Delete(':id')
     softDelete(@Param() userId: number) {
         return this.usersServices.softDeleteUser(userId)
     }

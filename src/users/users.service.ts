@@ -17,32 +17,29 @@ export class UsersService {
     }
 
     async getAllUsers(): Promise<User[]> {
-        return await this.usersRepository.find({where: {deletedAt: null}});
+        return await this.usersRepository.find();
     }
 
     async getUserById(userId: number): Promise<User> {
-        await this.doesIdExists(userId);
-        return await this.usersRepository.findOne(userId, {where: {deletedAt: null}});;
+        const user = await this.usersRepository.findOne(userId);
+        if (!user) throw new HttpException(`Пользователь с таким ID не найден`, HttpStatus.BAD_REQUEST);
+        return await this.usersRepository.findOne(userId);
     }
 
     async getUsersByName(userName: string): Promise<User[]> {
         return await this.usersRepository.find({name: userName});
     }
 
-    async updateUser(userId: number, dto: UpdateUserDto) {
-        await this.doesIdExists(userId);
-        return await this.usersRepository.update(userId, dto);
+    async updateUser(dto: UpdateUserDto) {
+        const {id, ...values} = dto;
+        const user = await this.usersRepository.findOne(id);
+        if (!user) throw new HttpException(`Пользователь с таким ID не найден`, HttpStatus.BAD_REQUEST);
+        return await this.usersRepository.update(id, values);
     }
 
     async softDeleteUser(userId: number) {
-        await this.doesIdExists(userId);
+        const user = await this.usersRepository.findOne(userId);
+        if (!user) throw new HttpException(`Пользователь с таким ID не найден`, HttpStatus.BAD_REQUEST);
         return await this.usersRepository.softDelete(userId);
-    }
-
-    async doesIdExists(userId: number) {
-            const user = await this.usersRepository.findOne(userId);
-            if (!user) {
-                throw new HttpException(`Пользователь с таким ID не найден`, HttpStatus.BAD_REQUEST);
-            }
     }
 }
