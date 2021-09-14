@@ -13,6 +13,9 @@ export class UsersService {
 
     async createUser(dto: CreateUserDto): Promise<User> {
         const user = await this.usersRepository.create(dto);
+        if (await this.usersRepository.findOne({where: {'email': dto.email}})) {
+            throw new HttpException(`Пользователь с таким email уже существует`, HttpStatus.BAD_REQUEST);
+        }
         return this.usersRepository.save(user);
     }
 
